@@ -38,6 +38,7 @@
 ## SQL query
 
 - Trigger format:
+
   - create trigger __triggerName__ after/before __insert/delete__/**update** (of **attributeName**) on __tableName__
 
     referencing new row as __nrow__
@@ -177,11 +178,63 @@
 ## Decompositions
 
 - Decomposition: a |X| b == R.
-- **Iff** a and b is a **lossless decomposition**:
+
+- **Lossless decomposition**
+
   - Either a ^ b -> a or a ^ b -> b belongs to F+.
   - Also can be mentioned as: **a ^ b is a super key on a or b**.
-- Iff a and b is a dependency-preserving decomposition:
+
+- **Dependency-preserving decomposition**
+
   - ......
+
+- **BCNF decomposition**
+
+  ```python
+  result = [R]
+  	done = False
+      
+      # calculate F+:
+      ......
+      
+      while not done:
+  		for Ri in result:
+  			if Ri is not BCNF:
+                  find such an a -> b that
+                  1. hold on Ri 
+                  2. is not trival
+                  3. a -> Ri does not belong to F+
+                  4. a and b have no common attributes
+                  
+                  then result = (result - Ri) U (Ri - b) U (a, b)
+      else done = True.
+  ```
+
+  - This algorithm is **lossless decomposition** because when we replace Ri with (Ri - b) and (a, b), a -> b, and (Ri - b) ^ (a, b) = a.
+  - If **a ^ b <> empty set**, the attributes of a ^ b will not be in (Ri - b), and a -> b will **NOT** hold on R.
+
+- **3NF decomposition**
+
+  ```python
+  Fc = cononical cover of F
+  i = -1
+  
+  for FD(a -> b) in Fc:
+      i += 1
+      Ri = ab
+      
+  for Rj in R(0:i):
+      if Rj does not include the candidate of R:
+      	i += 1
+          Ri = any candidate key of R.
+  
+  # optional: delete duplicate relations, until no dup exists.
+  if Rj is included in Rk:
+      i -= 1
+      delete Rj.
+  ```
+
+  
 
 ## variable length record
 
