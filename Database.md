@@ -529,15 +529,28 @@
   - Lock manager:
 
     - Each data item has a linked list.
+
     - Black rectangle means the lock has been granted, and white ones means waiting for granting.
+
     - How to maintain:
-      - 
+
+      - When a transaction asks for adding a lock, extend the list of the data item if it exist and create one if not.
+
+        ​	If it' s the first lock for the data item, the system will always agree to add it; else only if the request agrees with other locks and all other requests are satisfied, the system will agree to give a lock.
+
+      - When a transaction asks for unlocking a lock, the system will first delete the lock from the list, then check the list for requests and see if there are any available requests.
+
+      - If a transaction terminates, the system will delete all the lock requests of it.
+
     - Eg:
+
       - data item: I7, I23, I912, I4, I44.
 
     ![ABFABDCBBB6F2E146D48AB484DAB0F99](./lockTable.png)
 
-- ......
+  - Tree protcol:
+
+    ......
 
 ## XML —— some examples
 
