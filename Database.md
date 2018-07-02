@@ -251,11 +251,9 @@
 
     - Overall structure:
 
-      **Fixed attributes' values  +  (offset, lengths)s  +  Null bitmap  +  variable attributes' values**
+      **Attributes' values (values for fixed-length attributes and (offset, length) data for variable attributes)  +  Null bitmap  +  variable attributes' values**
 
-    - Store the fixed-size attributes first, and then the variable ones.
-    - At the head of varaible part in each record, the attribute's **(offset, length)** information are stored, followed by the value of it.
-    - A string of 0 and 1 will tell which attributes are NULL (1 if NULL) after the (offset length) ino.
+    - Null bitmap: a string of 0 and 1 will tell which attributes are NULL (1 if NULL).
 
   - **Slotted-page structure**
 
