@@ -171,7 +171,7 @@
   	repeat:
           use Union rule to replace all the FD with same left sets
           find an FD(a -> b) in Fc where a or b includes an extraneous attribute
-          	delete it from a -> b
+          	delete the attribute from a -> b
        until Fc does not change.
   ```
 
@@ -234,25 +234,42 @@
       delete Rj.
   ```
 
-  
+- **4NF**
+
+  - ......
 
 ## variable length record
 
 - Implementation
+
   - Problems:
+
     - How to describe a record so that a single attribute can easily fetch it.
     - How to store the record in a block so that the record can be easily fetched.
-  - Null bitmap
-    - NB is used at the head of a record to store the status of each attribute (1 if empty and 0 if not.)
-  - Slotted-page structure
+
+  - **Null bitmap**
+
+    - Overall structure:
+
+      **Fixed attributes' values  +  (offset, lengths)s  +  Null bitmap  +  variable attributes' values**
+
+    - Store the fixed-size attributes first, and then the variable ones.
+    - At the head of varaible part in each record, the attribute's **(offset, length)** information are stored, followed by the value of it.
+    - A string of 0 and 1 will tell which attributes are NULL (1 if NULL) after the (offset length) ino.
+
+  - **Slotted-page structure**
+
+    ![cost](./slot.png)
+
     - Each block has a blockhead that stores:
-      1. the number of attributes;
+      1. the number of entries;
       2. a pointer to the end of free space in the block;
       3. an array consisting of position and size of each record.
     - Note: 
       1. the free space is a continuous space, from the end of the array and the first record.
       2. when inserting a record, the new record will be placed at the end of the free space.
       3. when deleting a record, the size of this record in the array will be set -1, and the records before it will be moved and the pointer to the end of free space will be moved too.
+
   - Big objects are not directly stored in the database, but often stored by their pointers using **B+ tree**.
 
 ## File storage
@@ -281,7 +298,7 @@
 
 # B+Tree
 
-- Time complexity: **O($log$ ~floor(n/2)~ (N))**, and n is the maximum number of pointers in a node, and N is the number of records.
+- Time complexity: **O($log$ ~ceil(n/2)~ (N))**, and n is the maximum number of pointers in a node, and N is the number of records.
 
 - Note: the pointer of index node will point at the leaf whose value equals to the value **ahead of** the pointer.
 
@@ -310,7 +327,7 @@
 
   - Follow the steps of search.
   - If the node can be placed in the node, insert it;
-  - Else split the node; if the parent node is also full, split it too.
+  - Else split the node; if the parent node is also full, split it too, and the the inserted new node will go to upper levels.
   - Note that every time a node split, the parent needs to add one pointer to point at it.
 
 - Delete
@@ -332,6 +349,25 @@
 
     - Change the parent node: **delete** one value if a merge happened, or **alter** one value if a lend happened.
 
+- Calculation
+
+  **maxn = the maximum of pointers in an index node.**
+
+  Eg: maxn = 4, 10000 index items (which means 10000 **records**).
+
+  - Node ——> Height:
+    - There are 2-3 keys in a leaf node, and 2-4 children in an index node.
+    - minimum height = log 4 (10000/3) + 1.
+    - maximum height = log 2 (10000/2) + 1.
+  - Height ——> Node:
+    - leafNodes = ceil(10000/3).
+    - Total nodes = ceil(10000/3) + ceil(ceil(1000/3)/4) + ceil(ceil(ceil(1000/3)/4)/4) + ... + 1.
+
+- Bulk load
+
+  - When inserting a lot of tuples, sort them first and insert in order will be more efficient than inserting randomly.
+  - When creating an index from current tuples, we can directly build a B+-tree, that is called 'Bottom-up build', which is faster than inserting ('up-bottom method').
+
 ## Hashing
 
 - Close addressing: use a <u>overflow bucket</u> (implemented by a **linked list**)
@@ -343,9 +379,200 @@
 
   ![cost](./cost.png)
 
-- Equivalence rules
+  ## Cost of Link
+
+  - n = number of records, b = number of blocks.
+  - **Nested-loop join**
+    - Worst case: 
+      - Search times = n1 + b1.
+      - Transport times = n1 * b2 + b1.
+    - Best case: 
+      - Search times = 2.
+      - Transport times = b1 + b2.
+    - Total = Ts + Tt.
+  - **Block nested-loop join**
+    - Worst case:
+      - Search times = 2b1.
+      - Transport times = b1 * b2 + b1.
+    - Best case:
+      - Search times = 2.
+      - Transport times = b1 + b2.
+    - Total = Ts + Tt.
+
+  
+
+  ### Very important !!!
+
+  - ***Improved block nested-loop join***
+
+    ![image-20180702212623745](./improvement.png)
+
+  
+
+  - **Indexed nested-loop join**
+    - Total = b1 * (Ts + Tt) + n1 * c.
+  - **Merge join**
+    - Search time = ceil(b1/bb) + ceil(b2/bb).
+    - Transport time = b1 + b2.
+    - Merge sort
+      - Search = 2 * ceil(br/M) + ceil(br/bb) * (2 * ceil(log floor(M/bs)-1 (br/M)) - 1).
+      - Transport = br * (2 * ceil(log M-1 (br/M)) + 1).
+      - Merge times = ceil(log M-1 (br/M))
+  - **Hashing join**
+    - NOT recursive partitioning:
+      - Search times = 2 * ceil(b1/b2) + ceil(b2/bb) + 2 * nh. (Bb: blocks offered to buffer)
+      - Transport times = 3 * (b1 + b2) + 4 * nh. (nh: partitioning number)
+    - recursive partitioning:
+      - Search times = 2 * (ceil(b1/bb) + ceil(b2/bb))  * ceil(log M-1 (b2) - 1). 
+      - Transport times = 2 * (b1 + b2) * ceil(log M-1(b2) - 1) + b1 + b2. (M: number of buffers for each partition)
+    - Big main storage:
+      - nh = 0.
+      - Search times = 2.
+      - Transport times = b1 + b2.
+
+  ## Equivalence rules
 
   - Cascade of sig: sig cond1^cond2 (E) = sig cond1(sig cond2 (E))
   - Communitive: sig cond1 (sig cond2 (E)) = sig cond2 (sig cond1 (E))
   - Cascade of pi: pi l1 (pi l2 (pi l3 (pi l4 (...(pi ln (E))))))) = pi l1 (E), where l1 <u>C</u> l2 <u>C</u> l3 <u>C</u> ... <u>C</u> ln.
   - ......
+
+## ACID
+
+- **Atomicity**: done or not done.
+- **Consistency**: constrains that make sure for the data is consistent.
+- **Isolation**: each transaction is done free of other transactions' disturbance.
+- **Durability**: the results will stay still in the DB when the transaction is done.
+- Works related to ACID:
+  - A - recovery system (commit.)
+  - C - constrains (like primary key, unique, etc.)
+  - I - concurrency-control system (locks.)
+  - D - recovery system (write the changes to disk files.)
+
+## Serializable
+
+- Precedence graphs
+  - Rules: (assume operation t1.a is ahead of operation t2.b)
+    - If a = r and b = w, draw t1 -> t2.
+    - If a = w and b = r, draw t1 -> t2.
+    - If a = w and b = w, draw t1 -> t2
+    - In a word, if a or b is write, draw a line between the former(a) to the latter(b).
+  - Note: if there is no **loops** in the graph, then the schedule is serializable and vice versa.
+- If a schedule is serializable, give the series according to the graph, in the format of <T1, T2, T3>.
+
+## Schedule and Isolation
+
+- Status of a schedule
+
+  - **Active**: initial status.
+
+  - **Partially committed**: after the last query is being executed.
+
+  - **Failed**: fail to execute.
+
+  - **Aborted**: failed and rolled back.
+
+  - **Committed**: finished.
+
+  - **Terminated**: committed or aborted.
+
+    ![image-20180702180752071](./transactionStatus.png)
+
+- **Recoverable**: A recoverable schedule is one where, for each pair of Transaction Ti and Tj such that Tj  reads data item previously written by Ti   the commit operation of Ti  appears before the **commit** operation Tj.
+
+- **Cascadeless**: A cascadeless schedule is one where for each pair of transaction Ti  and Tj  such that Tj  reads data item, previously written by Ti   the commit operation of Ti  appears before the **read** operation of Tj. (*if not, once Ti fails, all the transactions dependent on Ti will have to roll back, and that is called cascade rollback.*)
+
+- **Every Cascadeless schedule is also recoverable schedule.**
+
+- **Class of Isolation** (from highest to lowest)
+
+  - Serializable
+  - Repeatable read
+  - Read commit
+  - Read uncommitted
+
+## Lock
+
+- Types of lock
+
+  - **S** —— shared lock: read but not write
+  - **X** —— exclusive lock: no read or write
+  - S and S are compatible, but S and X / X and X are not.
+  - A transaction can request for a lock, but before the system give it the lock, the transaction has to wait for the previous owner of lock to unlock it.
+  - If a transaction is waiting for so long that it can never be executed, it is called **starve**.
+
+- **2PL** ———— two-phase locking protocol
+
+  - ***growing*** phase: a transaction can get a lock but not unlocking one.
+
+  - ***shrinking*** phase: a transaction can unlock a lock but not getting one.
+
+  - lock point: after getting the last lock.
+
+  - Lock conversion: an S-lock can be upgraded to X during growing phase, and an X-lock can be downgraded to S during shrinking phase.
+
+  - <u>Strict mode</u>: X-locks have to be unlocked ***after*** the transaction is committed.
+
+  - <u>Rigorous mode</u>: Each lock has to be unlocked ***after*** the transaction is committed.
+
+  - <u>An easier mode</u>:
+
+    - When Ti tries to read, system will add a lock-S before executing the read operation.
+
+    - When Ti tries to write, system will check if the item is under a lock-S, and will either:
+
+      - Upgrade the lock-S;
+      - Add a lock-X;
+
+      and then do the write operation.
+
+    - When Ti is terminated (either committed or failed), the locks owned by it will be unlocked.
+
+  - Lock manager:
+
+    - Each data item has a linked list.
+    - Black rectangle means the lock has been granted, and white ones means waiting for granting.
+    - How to maintain:
+      - 
+    - Eg:
+      - data item: I7, I23, I912, I4, I44.
+
+    ![ABFABDCBBB6F2E146D48AB484DAB0F99](./lockTable.png)
+
+- ......
+
+## XML —— some examples
+
+- **Head of XML file**: <xs: schema xmlns:xs = "http://www.fuckDatabase.com">
+
+- **Sequence of attributes**: <xs: sequence>...</xs: sequence>
+
+- **Ways to define a relation set**:
+
+  - <xs: element name = "xxxx" type = "xs: string" // "xs: decimal"//"xxxx_type"(**DIY type**) />
+
+    *//......definition of other things......*
+
+    ​	<xs: complexType name = "xxxx_type">
+
+    *//......definition of xxxx_type......*
+
+    ​	</ xs: complexType>
+
+    </ xs: element>
+
+  - <xs: emelemt name = "xxxx">
+
+    ​	<xs: complexType>
+
+    //*……definition of xxxx_type......*
+
+    ​	</ xs: complexType>
+
+  - **MAX and MIN occurance**: <xs: element …… minOccurs = "0" maxOccurs = "unbounded">
+
+- **End of XML file**: </ xs: schema>
+
+## DTD
+
+- ......
