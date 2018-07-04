@@ -5,9 +5,29 @@
 - 构造函数
 
   - 名字和类名一样。
+
   - 无返回值类型。
+
   - 可以重载，常用的包括带参、无参、拷贝型。
-  - 可以使用初始化列表，格式为 varName (value)。
+
+  - 可以使用初始化列表，格式为 varName (expression)。
+
+  - 调用格式：
+
+    ```c++
+    // class xxx;
+    
+    // No params required:
+    x = xxx();
+    xxx x;
+    xxx x[100];
+    xxx x = xxx();
+    
+    // One or more params required:
+    x = xxx([params]);
+    xxx x([params]);
+    xxx x = param; // only available when 1 param is required.
+    ```
 
 - 析构函数
 
