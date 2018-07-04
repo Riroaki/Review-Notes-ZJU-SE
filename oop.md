@@ -119,6 +119,21 @@
     }
     ```
 
+  - 类型转换的重载
+
+    ```c++
+    class xxx {
+      private:
+        int num;
+      public:
+        operator int() const {
+            return value;
+        }
+    }
+    ```
+
+    * 在cout<<xxx对象时会隐式调用，也可以直接显式调用。
+
 - 常量
 
   - const成员函数
