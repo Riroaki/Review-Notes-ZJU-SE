@@ -1,5 +1,9 @@
 # OOP Review Notes
 
+[TOC]
+
+------
+
 ### 类 class
 
 - 构造函数
