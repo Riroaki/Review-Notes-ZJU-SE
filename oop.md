@@ -119,10 +119,22 @@
     }
     ```
 
+- 常量
+
+  - const成员函数
+    - 用于限制函数对变量的修改。
+    - 一个成员函数在加上const限定后与原来不是同一个函数，不能重载。
+    - const成员函数可以引用const和非const数据成员，但是不能修改它们的值；也不能调用非const成员函数。
+    - const成员函数在声明和定义时都需要加const。
+    - ***特殊情况：声明mutable的成员可以在const方法内改变。***
+  - const对象
+    - const实例只能调用const成员函数。
+    - 非const实例可以调用const或非const成员函数。
+
 - 其他
 
   - this指针为类内所有的函数隐含的指针，指向实例本身。
-  - const用于限制函数对变量的修改。有const的函数和没有的函数不被认为是同一个函数。
+  - const用于限制函数对变量的修改。有const的函数和没有的函数不被认为是同一个函数。const实例只能使用const方法，而非const实例优先使用非const方法（？）。
   - inline内联是编译器决定的。在定义类时实现的编译器默认内联，不过较复杂时不会内联。
   - 引用可以节省空间和提高效率，类似指针。
 
@@ -194,7 +206,7 @@
   	    throw 100;
       else
           throw out_of_range;
-  } catch(int param){
+  } catch (int param) {
       // ...do something if catch an int...
   } catch (...) {
       // ...do something if a default exception occurs...
