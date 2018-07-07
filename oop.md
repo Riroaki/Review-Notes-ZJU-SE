@@ -4,6 +4,8 @@
 
 ------
 
+> 程序就是一堆类通过告诉对方**做什么**的互相通信过程。至于怎么做，交给类自己。
+
 ### 类 class
 
 - 构造函数
@@ -14,7 +16,7 @@
 
   - 可以重载，常用的包括带参、无参、拷贝型。
 
-  - 可以使用初始化列表，格式为 varName (expression)。
+  - 可以使用初始化列表，格式为 varName (expression)，**赋值顺序按照变量的定义顺序**
 
   - 调用格式：
 
@@ -25,7 +27,6 @@
     xxx x;
     xxx x[100];
     xxx x = xxx();
-    
     // One or more params required:
     x = xxx([params]);
     xxx x([params]);
