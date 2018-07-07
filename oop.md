@@ -20,7 +20,6 @@
 
     ```c++
     // class xxx;
-    
     // No params required:
     x = xxx();
     xxx x;
@@ -95,6 +94,9 @@
     - 前置返回加之后的引用，以方便在表达式中连续使用。
     - 后置返回加之前的拷贝，故不能连续使用。
 
+
+  <div STYLE="page-break-after: always;"></div>
+
   - ++a的重载：
 
     ```c++
@@ -142,6 +144,8 @@
         return os;
     }
     ```
+
+  <div STYLE="page-break-after: always;"></div>
 
   - 类型转换的重载
 
@@ -194,6 +198,8 @@
     A d = c; // 这是正常的写法：A d(c);
     ```
 
+<div STYLE="page-break-after: always;"></div>
+
 ### 多态 polymorphism
 
 - override重写：子类实现父类特征完全一样的虚方法。
@@ -201,8 +207,6 @@
 - overload重载：同个类的同名、不同形参的方法。如构造函数的不同重载。
 
 - redefininng重定义：子类重定义父类同名方法。
-
-- 具体区别：
 
   | 概念       | 函数名 | 形参列表 | 返回值类型 | 是否虚 | 作用范围 |
   | :--------- | ------ | -------- | ---------- | ------ | -------- |
@@ -238,6 +242,8 @@
     }
     ```
 
+  <div STYLE="page-break-after: always;"></div>
+
 - 函数模版
 
   - 格式：
@@ -257,7 +263,6 @@
 
   ```c++
   try {
-      // ...do something...
       if(myMoney > 100)
   	    throw 100;
       else
@@ -274,8 +279,7 @@
 - 自定义异常：需要继承exception基类定义，通过what方法访问信息。
 
   ```c++
-  // ...include files...
-  
+  # include <exception>
   class myException: public exception {
     public:
       myException(): exception("Oh, I don't have enough money!") {}
@@ -293,5 +297,3 @@
       }
   }
   ```
-
-  
