@@ -121,7 +121,7 @@ public static void test(double... numbers) {
   - 在内部自定义的类也需要实现Cloneable接口并实现Clone函数`return (super).clone();`
 - 迭代器
   - 迭代器不能用于map，见下图：
-  - ![img](20150512154958716.png)
+  - ![img](https://img-blog.csdn.net/20150512154958716)
 - `List<String>`不能直接赋值给`List<Object>`，但是String对象可以赋值给Object引用
   - 因为String和Object有继承关系但是`List<String>`和`List<Object>`没有继承关系
 - String：**用literal值初始化的和用构造方法初始化的两个的地址不同**
